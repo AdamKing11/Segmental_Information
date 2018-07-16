@@ -29,6 +29,16 @@ def as_prefix(prefix, as_str = True):
 class SegInfo(object):
 
 	def __init__(self, phone_d, nphone = 1, use_freq = True, reverse = False, scramble = False, scramble_freqs = False):
+		"""
+		arguments:
+			`phone_d` : dictionary of tuples of phonetic transcription and frequency, e.g. 'dog' -> (['d', 'a', 'g'], 100)
+						used to calculate the segmental info
+			`nphone` : size of blocks for calculating segmental information. Right now, only monophones (1) and biphones (2)
+			`use_freq` : to use frequency in calculation
+			`reverse` : calculate segmental information on REVERSED lexicon
+			`scrable` : scramble segments in words and calculate segmental information
+			`scramble_freqs` : scramble the frequency scores between words 
+		"""
 		seqs = Counter()
 		count_at_position = defaultdict(Counter)
 		lex_sum = 0
@@ -79,6 +89,7 @@ class SegInfo(object):
 				d[ortho] = (word, new_count)
 		###
 		# for n-phones
+		if nphone not in [1, 2]:	nphone = 1
 		for ortho, (word, count) in d.items():
 			
 			word_as_list = list(word)
