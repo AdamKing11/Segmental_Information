@@ -51,6 +51,8 @@ class SegInfo(object):
 				d[ortho] = (word[::-1], count)
 				
 		if scramble:
+			# lazy, but scramble the segments in the words but make sure every 2-phone sequence
+			# in scrambled words is also in the original lexicon
 			biphones = set()
 			for _, (word, _) in d.items():
 				biphones = biphones.union(get_biphones(word))
@@ -71,6 +73,7 @@ class SegInfo(object):
 				
 				d[ortho] = (word, count)
 
+		# scramble the passed frequencies among words of the same length
 		if scramble_freqs:
 			length_to_counts = defaultdict(list)
 			# get the frequencies for all words of a paricular length

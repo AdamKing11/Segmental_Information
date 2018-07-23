@@ -49,7 +49,7 @@ def read_celex(lang, phone_index, min_freq = 5):
 				del phonos[word]
 	return phonos, monos
 
-def read_newdict(monos, f = 'newdic.txt', min_freq = 5):
+def read_newdict(monos, f = 'newdic.txt', min_freq = 1):
 	phonos = {}
 	with open(f) as rf:
 		reader = csv.reader(rf, delimiter = '\t')
@@ -81,37 +81,35 @@ if __name__ == '__main__':
 	_, e_monos = read_celex('english', 7)
 	e_f = read_newdict(e_monos)
 
+	# use the frequency from COCA instead
 	cf = read_coca_freqs()
-	
-	"""
 	d = e_f.copy()
 	e_f = {}
 	for w, t in d.items():
 		if w in cf:
 			e_f[w] = (t[0], cf[w])
-	"""
-
+	
+	# for regulard monophones, with frequency
 	e_si = SegInfo(e_f, use_freq = uf)
 	re_si = SegInfo(e_f, use_freq = uf, reverse = True)
-	scr_si = SegInfo(e_f, use_freq = uf, scramble = True)
-	
+
 	e_si.save('eng.txt', e_monos)
 	re_si.save('rev-eng.txt', e_monos)
-	scr_si.save('scr-eng.txt', e_monos)
+	
+	# for biphones
 	e_si = SegInfo(e_f, use_freq = uf, nphone = 2)
 	re_si = SegInfo(e_f, use_freq = uf, reverse = True, nphone = 2)
-	
 	e_si.save('eng.2.txt', e_monos)
 	re_si.save('rev-eng.2.txt', e_monos)
 
+	# for type data
 	e_si = SegInfo(e_f, use_freq = False)
 	re_si = SegInfo(e_f, use_freq = False, reverse = True)
-	
 	e_si.save('eng.nf.txt', e_monos)
 	re_si.save('rev-eng.nf.txt', e_monos)
 
-	# for random
-	if False:
+	# for variant lexicons where the frequencies have been shuffled among words of the same length
+	if True:
 		for i in tqdm(range(1000)):
 			random_si = SegInfo(e_f, use_freq = uf, scramble_freqs = True)
 			random_si.save('randos/{0}.txt'.format(i), e_monos)
