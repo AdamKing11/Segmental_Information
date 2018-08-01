@@ -1,5 +1,5 @@
 import os, sys, re
-import csv, math, random
+import csv, math, random, gzip
 
 from pprint import pprint
 from tqdm import tqdm
@@ -120,36 +120,47 @@ class SegInfo(object):
 
 		self.si = {}
 		self.pe = {}
+		self.ups = {}
 		for ortho, (word, count) in d.items():
 			phone_probs = []
 			pos_ent = []
-			
+
+			if not use_freq:	count = 1
+						
 			for position in range(len(word)):
-				if position == 0:
-					p = seqs[as_prefix(word[:1])]/lex_sum
-				else:
-					p = seqs[as_prefix(word[:position+1])]/seqs[as_prefix(word[:position])]
-				phone_probs.append(neg_log2(p))
+				# count of previous + segment
+				position_count = seqs[as_prefix(word[:position+1])]
+				# count of previous
+				last_position_count = seqs[as_prefix(word[:position])] if position > 0 else lex_sum
 				
+				# if this is the only word left in the lexicon, it's the uniqueness point
+				if last_position_count == count and ortho not in self.ups:
+					self.ups[ortho] = position + 1
+					
+				p = position_count/last_position_count
+				phone_probs.append(neg_log2(p))
+
 				e = count_at_position[position][word[position]] / pos_ent_sums[position]
 				pos_ent.append(neg_log2(e))
+			# if we've reached the end w/o a UP, the uniqueness point is the final segment
+			if ortho not in self.ups:
+				self.ups[ortho] = len(word)
 
 			self.si[ortho] = (count, phone_probs)
 			self.pe[ortho] = pos_ent
 
 	def save(self, f, mono = set()):
 		with open(f, 'w') as wf:
-			wf.write('{0}\n'.format('\t'.join(['WORD', 'FREQUENCY', 'LENGTH', 'POSITION', 'PHONE', 'SEQ_INFO', 'POSITION_INFO', 'MONOMORPHEME'])))
+			wf.write('{0}\n'.format('\t'.join(['WORD', 'FREQUENCY', 'LENGTH', 'UP', 'POSITION', 'PHONE', 'SEQ_INFO', 'POSITION_INFO', 'MONOMORPHEME'])))
 			for w, t in sorted(self.si.items(), key = lambda x : x[1][0], reverse = True):
 				count = str(t[0])
 				phones = self.ortho_to_phones[w]
 				phone_len = len(t[1])
-				# sometimes, phonetic transcription (esp. CELEX) are weird. skip words where there are way more phones than letters
+						# sometimes, phonetic transcription (esp. CELEX) are weird. skip words where there are way more phones than letters
 				if len(w) < phone_len * .75:	continue
 				pos_info = self.pe[w]
-
+	
 				for i, p in enumerate(t[1]):
-					wf.write('{0}\n'.format('\t'.join([w, count, str(phone_len), str(i+1), 
+					wf.write('{0}\n'.format('\t'.join([w, count, str(phone_len), str(self.ups[w]), str(i+1), 
 						phones[i], str(p), str(pos_info[i]), 'T' if w in mono else 'F']))) 
-					
-
+		
