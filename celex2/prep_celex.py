@@ -54,33 +54,25 @@ from SegInfo import SegInfo
 
 if __name__ == '__main__':
 	
-	
 	uf = True
 	print(1)
 	e_f, e_monos = read_celex('english', 7)
 	e_si = SegInfo(e_f, use_freq = uf)
-	se_si = SegInfo(e_f, use_freq = uf, scramble = True)
 	re_si = SegInfo(e_f, use_freq = uf, reverse = True)
 	e_si.save('eng.txt', e_monos)
-	sys.exit()
-	se_si.save('scramble-eng.txt', e_monos)
 	re_si.save('rev-eng.txt', e_monos)
 	
 	print(2)
 	g_f, g_monos = read_celex('german', 4)
 	g_si = SegInfo(g_f, use_freq = uf)
-	sg_si = SegInfo(g_f, use_freq = uf, scramble = True)
 	rg_si = SegInfo(g_f, use_freq = uf, reverse = True)
 	g_si.save('german.txt', g_monos)
-	sg_si.save('scramble-german.txt', g_monos)
 	rg_si.save('rev-german.txt', g_monos)
 	print(3)
 	d_f, d_monos = read_celex('dutch', 5)	
 	d_si = SegInfo(d_f, use_freq = uf)
-	sd_si = SegInfo(d_f, use_freq = uf, scramble = True)
 	rd_si = SegInfo(d_f, use_freq = uf, reverse = True)
 	d_si.save('dutch.txt', d_monos)
-	sd_si.save('scramble-dutch.txt', d_monos)
 	rd_si.save('rev-dutch.txt', d_monos)
 	
 	print(4)
@@ -91,12 +83,10 @@ if __name__ == '__main__':
 	e_si.save('eng_nf.txt', e_monos)
 	re_si.save('rev-eng_nf.txt', e_monos)
 	
-	"""
-	from tqdm import tqdm
-	for i in tqdm(range(1000)):
-		e_f, e_monos = read_celex('english', 7)
-		#e_si = SegInfo(e_f, use_freq = True, scramble_freqs = True)
-		#e_si.save('workspace/fs_eng.txt{0}'.format(i), e_monos)
-		e_si = SegInfo(e_f, use_freq = True, scramble_freqs = True)
-		e_si.save('workspace/fs_eng.txt{0}'.format(i), e_monos)
-	"""
+	if True:
+		for i in tqdm(range(200)):
+			random_si = SegInfo(g_f, use_freq = uf, scramble_freqs = True)
+			random_si.save('randos/german/{0}.txt'.format(i), g_monos)
+
+			random_si = SegInfo(d_f, use_freq = uf, scramble_freqs = True)
+			random_si.save('randos/dutch/{0}.txt'.format(i), d_monos)

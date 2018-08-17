@@ -112,4 +112,4 @@ if __name__ == '__main__':
 	if True:
 		for i in tqdm(range(1000)):
 			random_si = SegInfo(e_f, use_freq = uf, scramble_freqs = True)
-			random_si.save('randos/{0}.txt'.format(i), e_monos)
+			random_si.save('randos/eng/{0}.txt'.format(i), e_monos)
