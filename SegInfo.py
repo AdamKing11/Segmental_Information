@@ -28,7 +28,7 @@ def as_prefix(prefix, as_str = True):
 # input type: orthography -> (phones, freq)
 class SegInfo(object):
 
-	def __init__(self, phone_d, nphone = 1, use_freq = True, reverse = False, scramble = False, scramble_freqs = False):
+	def __init__(self, phone_d, nphone = 1, use_freq = True, reverse = False, scramble = False, scramble_freqs = False, exclude_word_freq = False):
 		"""
 		arguments:
 			`phone_d` : dictionary of tuples of phonetic transcription and frequency, e.g. 'dog' -> (['d', 'a', 'g'], 100)
@@ -136,7 +136,11 @@ class SegInfo(object):
 				# if this is the only word left in the lexicon, it's the uniqueness point
 				if last_position_count == count and ortho not in self.ups:
 					self.ups[ortho] = position + 1
-					
+				
+				if exclude_word_freq and count != position_count:
+					position_count -= count
+					last_position_count -= count
+
 				p = position_count/last_position_count
 				phone_probs.append(neg_log2(p))
 

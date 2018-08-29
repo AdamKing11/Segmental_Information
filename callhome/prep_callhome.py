@@ -1,6 +1,8 @@
 import os, re, sys
 import csv, math
+
 from pprint import pprint
+from tqdm import tqdm
 from collections import Counter, defaultdict
 
 def neg_log2(p):
@@ -16,11 +18,16 @@ def read_j(f = 'jpn/lex/ja_lex.v02'):
 		reader = csv.reader(rf, delimiter = '\t')
 		for l in reader:
 			word = l[2]
-			word = re.sub('ssh','$$', word)
+			word = re.sub('tts', 'Ծ', word)
+			word = re.sub('ts', 'ծ', word)
+			word = re.sub('ssh','%', word)
 			word = re.sub('sh','$', word)
 			word = re.sub('cch','C', word)
-			word = re.sub('ch','C', word)
+			word = re.sub('ch','c', word)
 			word = re.sub(r'([szptkbdgmnaeiou])\1', match_upper, word)
+			word = re.sub(r'ai', '@', word)
+			word = re.sub(r'ou', '0', word)
+			word = re.sub(r'ei', '3', word)
 			count = int(l[5])
 			if count >= 1:	
 				j[word] = (word, count)
@@ -30,7 +37,7 @@ def read_j(f = 'jpn/lex/ja_lex.v02'):
 
 def read_a(f = 'ara/lex/ar_lex.v07'):
 	a = {}
-	with open(_f) as rf:
+	with open(f) as rf:
 		reader = csv.reader(rf, delimiter = '\t')
 		for l in reader:
 			word = l[0]

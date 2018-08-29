@@ -17,7 +17,7 @@ def read_celex(lang, phone_index, min_freq = 5):
 	morph_file = '{0}/{1}ml/{1}ml.cd'.format(lang, lang[0])
 	phono_file = '{0}/{1}pl/{1}pl.cd'.format(lang, lang[0])
 	
-	non_az = re.compile(r'[-\. ]')
+	non_az = re.compile(r"[-\.' ]")
 	freqs = Counter()
 	monos = set()
 	with open(morph_file) as rf:
@@ -75,16 +75,8 @@ if __name__ == '__main__':
 	d_si.save('dutch.txt', d_monos)
 	rd_si.save('rev-dutch.txt', d_monos)
 	
-	print(4)
-	uf = False
-	e_f, e_monos = read_celex('english', 7)	
-	e_si = SegInfo(e_f, use_freq = uf)
-	re_si = SegInfo(e_f, use_freq = uf, reverse = True)
-	e_si.save('eng_nf.txt', e_monos)
-	re_si.save('rev-eng_nf.txt', e_monos)
-	
 	if True:
-		for i in tqdm(range(200)):
+		for i in tqdm(range(50)):
 			random_si = SegInfo(g_f, use_freq = uf, scramble_freqs = True)
 			random_si.save('randos/german/{0}.txt'.format(i), g_monos)
 

@@ -2,7 +2,7 @@ import os, re, sys
 from tqdm import tqdm
 from pprint import pprint
 
-def read_corpus(corpus_f, alphabet, min_freq = 50, skip_english = False):
+def read_corpus(corpus_f, alphabet, min_freq = 20, skip_english = False):
 	freqs = {}
 	with open(corpus_f) as rf:
 		for i, line in tqdm(enumerate(rf)):
@@ -69,33 +69,39 @@ if __name__ == '__main__':
 	sys.path.append("../")
 	from SegInfo import SegInfo
 	
+	uf = True
 	print(1)
 	arm = read_corpus('hye/hye-am_web_2017_1M-sentences.txt', aybuben)
 	arm = prepare_corpusfreq(arm, phone_transcript_f = arm_t)
-	arm_si = SegInfo(arm)
+	arm_si = SegInfo(arm, use_freq = uf)
 	arm_si.save('hye.txt', ())
-	scr_arm_si = SegInfo(arm, scramble = True)
-	scr_arm_si.save('scr-hye.txt', ())
-	rev_arm_si = SegInfo(arm, reverse = True)
-	rev_arm_si.save('rev-hye.txt', ())
+	rev_arm_si = SegInfo(arm, reverse = True, use_freq = uf)
+	rev_arm_si.save('rev-hye.txt')
 
 	print(2)
 	turk = read_corpus('tur/tur-tr_web_2016_1M-sentences.txt', turk_alphabet)
 	turk = prepare_corpusfreq(turk)
-	turk_si = SegInfo(turk)
+	turk_si = SegInfo(turk, use_freq = uf)
 	turk_si.save('turk.txt')
-	scr_turk_si = SegInfo(turk, scramble = True)
-	scr_turk_si.save('scr-turk.txt', ())
-	rev_turk_si = SegInfo(turk, reverse = True)
-	rev_turk_si.save('rev-turk.txt', ())
+	rev_turk_si = SegInfo(turk, reverse = True, use_freq = uf)
+	rev_turk_si.save('rev-turk.txt')
 	
 	print(3)
 	tag = read_corpus('tag/tgl_newscrwal_2011_300K-sentences.txt', tag_alphabet, skip_english = True)
 	tag = prepare_corpusfreq(tag, phone_transcript_f = tag_t)
-	tag_si = SegInfo(tag)
+	tag_si = SegInfo(tag, use_freq = uf)
 	tag_si.save('tag.txt')
-	scr_tag_si = SegInfo(tag, scramble = True)
-	scr_tag_si.save('scr-tag.txt', ())
-	rev_tag_si = SegInfo(tag, reverse = True)
-	rev_tag_si.save('rev-tag.txt', ())
+	rev_tag_si = SegInfo(tag, reverse = True, use_freq = uf)
+	rev_tag_si.save('rev-tag.txt')
 
+
+	if True:
+		for i in tqdm(range(50)):
+			random_si = SegInfo(arm, use_freq = uf, scramble_freqs = True)
+			random_si.save('randos/hye/{0}.txt'.format(i))
+
+			random_si = SegInfo(turk, use_freq = uf, scramble_freqs = True)
+			random_si.save('randos/turk/{0}.txt'.format(i))
+
+			random_si = SegInfo(tag, use_freq = uf, scramble_freqs = True)
+			random_si.save('randos/tag/{0}.txt'.format(i))

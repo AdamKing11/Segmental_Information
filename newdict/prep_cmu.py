@@ -13,7 +13,7 @@ def clean_phones(p):
 	return p
 
 
-def read_celex(lang, phone_index, min_freq = 5):
+def read_celex(lang, phone_index, min_freq = 1):
 	morph_file = '../celex2/{0}/{1}ml/{1}ml.cd'.format(lang, lang[0])
 	phono_file = '../celex2/{0}/{1}pl/{1}pl.cd'.format(lang, lang[0])
 	
@@ -108,8 +108,14 @@ if __name__ == '__main__':
 	e_si.save('eng.nf.txt', e_monos)
 	re_si.save('rev-eng.nf.txt', e_monos)
 
+	# for exluding the frequency of a particular word when calculating seg info
+	e_si = SegInfo(e_f, exclude_word_freq = True)
+	re_si = SegInfo(e_f, exclude_word_freq = True, reverse = True)
+	e_si.save('eng.excluded.txt', e_monos)
+	re_si.save('rev-eng.excluded.txt', e_monos)
+
 	# for variant lexicons where the frequencies have been shuffled among words of the same length
-	if True:
-		for i in tqdm(range(1000)):
+	if False:
+		for i in tqdm(range(200)):
 			random_si = SegInfo(e_f, use_freq = uf, scramble_freqs = True)
 			random_si.save('randos/eng/{0}.txt'.format(i), e_monos)
