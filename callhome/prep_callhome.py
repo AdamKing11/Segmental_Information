@@ -59,23 +59,25 @@ if __name__ == '__main__':
 	print(1)
 	ara = SegInfo(a, use_freq = uf)
 	ara.save('ara.txt')
-	
+	rev_ara = SegInfo(a, use_freq = uf, reverse = True)
+	rev_ara.save('rev_ara.txt')
+
 	print(2)
 	jpn = SegInfo(j, use_freq = uf)
 	jpn.save('jpn.txt')
-	
-	print(3)
-	rev_ara = SegInfo(a, use_freq = uf, reverse = True)
-	rev_ara.save('rev_ara.txt')
-	
-	print(4)
 	rev_jpn = SegInfo(j, use_freq = uf, reverse = True)
-	rev_jpn.save('rev_jpn.txt')	
+	rev_jpn.save('rev_jpn.txt')		
+		
+	print(3)
+	ara = SegInfo(a, use_freq = uf, exclude_word_freq = True)
+	ara.save('ara.excluded.txt')
+	jpn = SegInfo(j, use_freq = uf, exclude_word_freq = True)
+	jpn.save('jpn.excluded.txt')
 
 	if True:
-		for i in tqdm(range(200)):
+		for i in tqdm(range(100)):
 			random_si = SegInfo(a, use_freq = uf, scramble_freqs = True)
-			random_si.save('randos/ara/{0}.txt'.format(i))
+			random_si.save('randos/ara_exclude/{0}.txt'.format(i))
 
 			random_si = SegInfo(j, use_freq = uf, scramble_freqs = True)
-			random_si.save('randos/jpn/{0}.txt'.format(i))
+			random_si.save('randos/jpn_exclude/{0}.txt'.format(i))

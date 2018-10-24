@@ -65,20 +65,26 @@ if __name__ == '__main__':
 	print(2)
 	g_f, g_monos = read_celex('german', 4)
 	g_si = SegInfo(g_f, use_freq = uf)
+	g_ex_si = SegInfo(g_f, use_freq = uf, exclude_word_freq = True)
 	rg_si = SegInfo(g_f, use_freq = uf, reverse = True)
 	g_si.save('german.txt', g_monos)
+	g_ex_si.save('german.excluded.txt', g_monos)
 	rg_si.save('rev-german.txt', g_monos)
+	
 	print(3)
 	d_f, d_monos = read_celex('dutch', 5)	
 	d_si = SegInfo(d_f, use_freq = uf)
+	d_ex_si = SegInfo(d_f, use_freq = uf, exclude_word_freq = True)
 	rd_si = SegInfo(d_f, use_freq = uf, reverse = True)
 	d_si.save('dutch.txt', d_monos)
+	d_ex_si.save('dutch.excluded.txt', g_monos)
 	rd_si.save('rev-dutch.txt', d_monos)
 	
-	if True:
-		for i in tqdm(range(50)):
-			random_si = SegInfo(g_f, use_freq = uf, scramble_freqs = True)
-			random_si.save('randos/german/{0}.txt'.format(i), g_monos)
 
-			random_si = SegInfo(d_f, use_freq = uf, scramble_freqs = True)
-			random_si.save('randos/dutch/{0}.txt'.format(i), d_monos)
+	if True:
+		for i in tqdm(range(100)):
+			random_si = SegInfo(g_f, use_freq = uf, exclude_word_freq = True, scramble_freqs = True)
+			random_si.save('randos/german_exclude/{0}.txt'.format(i), g_monos)
+
+			random_si = SegInfo(d_f, use_freq = uf, exclude_word_freq = True, scramble_freqs = True)
+			random_si.save('randos/dutch_exclude/{0}.txt'.format(i), d_monos)

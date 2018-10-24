@@ -115,7 +115,9 @@ if __name__ == '__main__':
 	re_si.save('rev-eng.excluded.txt', e_monos)
 
 	# for variant lexicons where the frequencies have been shuffled among words of the same length
-	if False:
+	if True:
 		for i in tqdm(range(200)):
-			random_si = SegInfo(e_f, use_freq = uf, scramble_freqs = True)
+			random_si = SegInfo(e_f, use_freq = uf, exclude_word_freq = False, scramble_freqs = True)
 			random_si.save('randos/eng/{0}.txt'.format(i), e_monos)
+			random_si = SegInfo(e_f, use_freq = uf, exclude_word_freq = True, scramble_freqs = True)
+			random_si.save('randos/eng_exclude/{0}.txt'.format(i), e_monos)
