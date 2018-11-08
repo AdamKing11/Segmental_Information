@@ -11,7 +11,7 @@ def neg_log2(p):
 def match_upper(m):
 	return m.group(1).upper()
 
-def read_j(f = 'jpn/lex/ja_lex.v02'):
+def read_j(f = 'jpn/lex/ja_lex.v02', min_count = 5):
 
 	j = {}
 	with open(f) as rf:
@@ -29,13 +29,13 @@ def read_j(f = 'jpn/lex/ja_lex.v02'):
 			word = re.sub(r'ou', '0', word)
 			word = re.sub(r'ei', '3', word)
 			count = int(l[5])
-			if count >= 1:	
+			if count >= min_count:	
 				j[word] = (word, count)
 	return j
 
 
 
-def read_a(f = 'ara/lex/ar_lex.v07'):
+def read_a(f = 'ara/lex/ar_lex.v07', min_count = 5):
 	a = {}
 	with open(f) as rf:
 		reader = csv.reader(rf, delimiter = '\t')
@@ -43,7 +43,7 @@ def read_a(f = 'ara/lex/ar_lex.v07'):
 			word = l[0]
 			word = re.sub(r'([lwysz])\1', match_upper, word)
 			count = sum([int(c) for c in l[5:7]])
-			if count >= 1:
+			if count >= min_count:
 				a[word] = (word, count)
 	return a
 

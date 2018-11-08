@@ -28,7 +28,7 @@ def as_prefix(prefix, as_str = True):
 # input type: orthography -> (phones, freq)
 class SegInfo(object):
 
-	def __init__(self, phone_d, nphone = 1, use_freq = True, reverse = False, scramble = False, scramble_freqs = False, exclude_word_freq = False):
+	def __init__(self, phone_d, nphone = 1, use_freq = True, reverse = False, scramble = False, scramble_freqs = False, exclude_word_freq = True):
 		"""
 		arguments:
 			`phone_d` : dictionary of tuples of phonetic transcription and frequency, e.g. 'dog' -> (['d', 'a', 'g'], 100)
@@ -37,7 +37,8 @@ class SegInfo(object):
 			`use_freq` : to use frequency in calculation
 			`reverse` : calculate segmental information on REVERSED lexicon
 			`scrable` : scramble segments in words and calculate segmental information
-			`scramble_freqs` : scramble the frequency scores between words 
+			`scramble_freqs` : scramble the frequency scores between words
+			`exclude_word_freq` : when calculating seg info, subtract the frequency of the current word
 		"""
 		seqs = Counter()
 		count_at_position = defaultdict(Counter)

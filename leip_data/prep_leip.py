@@ -1,6 +1,10 @@
 import os, re, sys
 from tqdm import tqdm
 from pprint import pprint
+from nltk.corpus import words
+
+sys.path.append("../")
+from SegInfo import SegInfo
 
 def read_corpus(corpus_f, alphabet, min_freq = 20, skip_english = False):
 	freqs = {}
@@ -23,7 +27,6 @@ def read_corpus(corpus_f, alphabet, min_freq = 20, skip_english = False):
 			legit_words[word] = freq
 
 	if skip_english:
-		from nltk.corpus import words
 		english_words = set(words.words())
 
 		for word in legit_words.copy():
@@ -59,6 +62,9 @@ tag_alphabet = 'a-z'
 def tag_t(w):
 	# ng
 	w = re.sub(r'ng', 'N', w)
+	w = re.sub(r'ch', 'ճ', w)
+	w = re.sub(r's[iy]', 'շ', w)
+	
 
 	return w
 
@@ -66,9 +72,7 @@ turk_alphabet = r'a-zğçşıüö'
 
 
 if __name__ == '__main__':
-	sys.path.append("../")
-	from SegInfo import SegInfo
-	
+		
 	uf = True
 	print(1)
 	arm = read_corpus('hye/hye-am_web_2017_1M-sentences.txt', aybuben)
