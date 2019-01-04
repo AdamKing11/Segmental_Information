@@ -4,6 +4,11 @@ import csv, math
 from pprint import pprint
 from tqdm import tqdm
 from collections import Counter
+import threading
+
+sys.path.append("../")
+from SegInfo import SegInfo
+
 
 def clean_phones(p):
 	p = re.sub(r'\\.*$', '', p)
@@ -72,10 +77,24 @@ def read_coca_freqs(f = 'coca_freqs.txt'):
 	 			freqs[word] = freqs.get(word, 0) + int(freq)
 	return freqs
 
-sys.path.append("../")
-from SegInfo import SegInfo
-
-
+def run_scramble(lex, lang_name, monos = set(), nb_lexicons = 100, nb_threads = 3):
+	iter_per_thread = int(nb_lexicons / nb_threads) + 1
+	
+	# prepare the function each thread will run
+	def scramble_thread(index_start = 0):
+		for i in tqdm(range(iter_per_thread)):
+			random_si = SegInfo(lex, scramble_freqs = True)
+			random_si.save('randos/{0}/{1}.txt'.format(lang_name, i + index_start), monos)
+		print()
+	# clear old files
+	for f in os.listdir('randos/{0}/'.format(lang_name)):
+		os.remove('randos/{0}/'.format(lang_name) + f)
+	threads = []
+	for i in range(nb_threads):
+		t = threading.Thread(target = scramble_thread, args = (i * iter_per_thread,))
+		threads.append(t)
+		t.start()
+	
 if __name__ == '__main__':
 	uf = True
 	_, e_monos = read_celex('english', 7)
@@ -90,12 +109,13 @@ if __name__ == '__main__':
 			e_f[w] = (t[0], cf[w])
 	
 	# for regulard monophones, with frequency
-	e_si = SegInfo(e_f, use_freq = uf)
-	re_si = SegInfo(e_f, use_freq = uf, reverse = True)
+	e_si = SegInfo(e_f, use_freq = uf, exclude_word_freq = True)
+	re_si = SegInfo(e_f, use_freq = uf, reverse = True, exclude_word_freq = True)
 
 	e_si.save('eng.txt', e_monos)
 	re_si.save('rev-eng.txt', e_monos)
-	
+	e_si.save_lexicon('../lexicons/' + 'eng.lex.txt')
+	"""
 	# for biphones
 	e_si = SegInfo(e_f, use_freq = uf, nphone = 2)
 	re_si = SegInfo(e_f, use_freq = uf, reverse = True, nphone = 2)
@@ -113,11 +133,16 @@ if __name__ == '__main__':
 	re_si = SegInfo(e_f, exclude_word_freq = True, reverse = True)
 	e_si.save('eng.excluded.txt', e_monos)
 	re_si.save('rev-eng.excluded.txt', e_monos)
-
-	# for variant lexicons where the frequencies have been shuffled among words of the same length
+	"""
+		# for variant lexicons where the frequencies have been shuffled among words of the same length
+	
+	if False:
+		e_si = SegInfo(e_f, use_freq = uf, exclude_word_freq = False)
+		e_si.save('eng.included.txt', e_monos)
+		for f in os.listdir('randos/eng_included/'):
+			os.remove('randos/eng_included/' + f)
+		for i in tqdm(range(500)):
+			random_si = SegInfo(e_f, exclude_word_freq = False, scramble_freqs = True)
+			random_si.save('randos/eng_included/{0}.txt'.format(i), e_monos)
 	if True:
-		for i in tqdm(range(200)):
-			random_si = SegInfo(e_f, use_freq = uf, exclude_word_freq = False, scramble_freqs = True)
-			random_si.save('randos/eng/{0}.txt'.format(i), e_monos)
-			random_si = SegInfo(e_f, use_freq = uf, exclude_word_freq = True, scramble_freqs = True)
-			random_si.save('randos/eng_exclude/{0}.txt'.format(i), e_monos)
+		run_scramble(e_f, 'eng', e_monos, nb_threads = 2)

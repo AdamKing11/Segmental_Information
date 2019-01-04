@@ -28,7 +28,7 @@ def as_prefix(prefix, as_str = True):
 # input type: orthography -> (phones, freq)
 class SegInfo(object):
 
-	def __init__(self, phone_d, nphone = 1, use_freq = True, reverse = False, scramble = False, scramble_freqs = False, exclude_word_freq = True):
+	def __init__(self, phone_d, nphone = 1, use_freq = True, reverse = False, scramble = False, scramble_freqs = False, exclude_word_freq = True, min_per_mil = 1):
 		"""
 		arguments:
 			`phone_d` : dictionary of tuples of phonetic transcription and frequency, e.g. 'dog' -> (['d', 'a', 'g'], 100)
@@ -39,6 +39,7 @@ class SegInfo(object):
 			`scrable` : scramble segments in words and calculate segmental information
 			`scramble_freqs` : scramble the frequency scores between words
 			`exclude_word_freq` : when calculating seg info, subtract the frequency of the current word
+			`min_per_mil` : frequency cut-off for words
 		"""
 		seqs = Counter()
 		count_at_position = defaultdict(Counter)
@@ -46,6 +47,18 @@ class SegInfo(object):
 		# in case we modify the dict, copy it so it doesn't affect the passed dictionary 
 		d = phone_d.copy()
 		
+		############
+
+		if min_per_mil > 0:
+			total_corpus_freq = sum([t[1] for t in d.values()])
+			e = {}
+			for ortho, (word, count) in d.items():
+				count_per_mil = (count / total_corpus_freq) * 1000000
+				if count_per_mil >= min_per_mil:
+					e[ortho] = (word, count)
+			d = e
+
+		############
 		if reverse:
 			for ortho, (word, count) in d.items():
 		
@@ -93,14 +106,13 @@ class SegInfo(object):
 				d[ortho] = (word, new_count)
 		###
 		# for n-phones
-		if nphone not in [1, 2]:	nphone = 1
-		for ortho, (word, count) in d.items():
-			
-			word_as_list = list(word)
-			if nphone == 2:
-				word_as_list = [word[i] + word[i+1] for i in range(len(word)-1)]
-			d[ortho] = (word_as_list, count)
+		if nphone != 1:
+			for ortho, (word, count) in d.items():	
+				word_as_list = list(word)
+				word_as_list = [word[i] + word[i+(nphone - 1)] for i in range(len(word)-(nphone - 1))]
+				d[ortho] = (word_as_list, count)
 		###
+
 		self.ortho_to_phones = {}
 		for ortho, (word, count) in d.items():
 			self.ortho_to_phones[ortho] = word
@@ -153,10 +165,13 @@ class SegInfo(object):
 
 			self.si[ortho] = (count, phone_probs)
 			self.pe[ortho] = pos_ent
+			self.lexicon = d
 
 	def save(self, f, mono = set()):
 		with open(f, 'w') as wf:
-			wf.write('{0}\n'.format('\t'.join(['WORD', 'FREQUENCY', 'LENGTH', 'UP', 'POSITION', 'PHONE', 'SEQ_INFO', 'POSITION_INFO', 'MONOMORPHEME'])))
+			writer = csv.writer(wf, delimiter = '\t')
+			#wf.write('{0}\n'.format('\t'.join(['WORD', 'FREQUENCY', 'LENGTH', 'UP', 'POSITION', 'PHONE', 'SEQ_INFO', 'POSITION_INFO', 'MONOMORPHEME'])))
+			writer.writerow(['WORD', 'FREQUENCY', 'LENGTH', 'UP', 'POSITION', 'PHONE', 'SEQ_INFO', 'POSITION_INFO', 'MONOMORPHEME'])
 			for w, t in sorted(self.si.items(), key = lambda x : x[1][0], reverse = True):
 				count = str(t[0])
 				phones = self.ortho_to_phones[w]
@@ -166,6 +181,16 @@ class SegInfo(object):
 				pos_info = self.pe[w]
 	
 				for i, p in enumerate(t[1]):
-					wf.write('{0}\n'.format('\t'.join([w, count, str(phone_len), str(self.ups[w]), str(i+1), 
-						phones[i], str(p), str(pos_info[i]), 'T' if w in mono else 'F']))) 
-		
+					#wf.write('{0}\n'.format('\t'.join([w, count, str(phone_len), str(self.ups[w]), str(i+1), 
+					#	phones[i], str(p), str(pos_info[i]), 'T' if w in mono else 'F']))) 
+					writer.writerow([w, count, str(phone_len), str(self.ups[w]), str(i+1), phones[i], str(p), str(pos_info[i]), 'T' if w in mono else 'F'])
+
+
+	def save_lexicon(self, f):
+		total_corpus_freq = sum([t[1] for t in self.lexicon.values()])
+		with open(f, 'w') as wf:
+			writer = csv.writer(wf, delimiter = '\t')
+			for word, (phones, count) in sorted(self.lexicon.items(), key = lambda x: x[1][1], reverse = True):
+				if type(phones) != list:	phones = list(phones)
+				count_per_mil = (count / total_corpus_freq) * 1000000
+				writer.writerow([word, ' '.join(phones), count_per_mil])
