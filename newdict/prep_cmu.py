@@ -144,5 +144,5 @@ if __name__ == '__main__':
 		for i in tqdm(range(500)):
 			random_si = SegInfo(e_f, exclude_word_freq = False, scramble_freqs = True)
 			random_si.save('randos/eng_included/{0}.txt'.format(i), e_monos)
-	if True:
+	if False:
 		run_scramble(e_f, 'eng', e_monos, nb_threads = 2)
